@@ -6,20 +6,22 @@ using UnityEngine;
 [CreateAssetMenu]
 public class BoidSettings : ScriptableObject
 {
+
+    public int boidSpawnCount = 65;
+    
     // Boid Settings
     [Header ("Boid Settings")]
     public float minSpeed = 0.5f;
     public float maxSpeed = 1;
-    public float perceptionRadius = 2.5f;
+    public float perceptionRadius = 100;
     public float avoidanceRadius = 1;
+    
     //public float maxSteerForce = 3;
     public float maxSteerForce = 30;
 
-    public float alignWeight = 1;
-    public float cohesionWeight = 1;
-    public float seperateWeight = 1;
-    
-
+    public float alignWeight = 0;
+    public float cohesionWeight = 0;
+    public float seperateWeight = 0;
     
     
     [Header ("Collisions")]

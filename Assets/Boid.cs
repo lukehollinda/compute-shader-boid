@@ -9,7 +9,6 @@ public class Boid : MonoBehaviour
 {
 
     public Vector3 position;
-
     public Vector3 forward;
     public Vector3 velocity;
 
@@ -18,7 +17,7 @@ public class Boid : MonoBehaviour
     public Vector3 avgFlockHeading;
     public Vector3 avgAvoidanceHeading;
     public Vector3 centreOfFlockmates;
-
+    public int flockmatesInRange;
 
     // Cached
     public Transform cachedTransform;
@@ -40,15 +39,10 @@ public void Initialize(BoidSettings settings)
         float startSpeed = (settings.minSpeed + settings.maxSpeed) / 2;
         velocity = forward * startSpeed;
         
-        Debug.Log("Starting Vel:" + velocity);
+        //Debug.Log("Starting Vel:" + velocity);
 
     }
-    
-    
-    
-    
 
-    
     bool IsHeadingForCollision () 
     {
         RaycastHit hit;
@@ -59,7 +53,7 @@ public void Initialize(BoidSettings settings)
         return false;
     }
     
-    //Returns the direction of a ray that does not collide with the environment
+    //Returns the direction of a ray that does not collide with the environment, else forward
     Vector3 ObstacleRays () 
     {
         Vector3[] rayDirections = ObstacleRayTracingHelper.directions;
@@ -73,45 +67,53 @@ public void Initialize(BoidSettings settings)
                 return dir;
             }
         }
-
-        Debug.Log("RETURNING FORWARD");
-
+        
         return forward;
     }
 
     public void UpdateBoid()
     {
         
-        Debug.Log("Velocity Initial:" + velocity);
-
         acceleration = Vector3.zero;
-        
-        Debug.Log("Boid updating");
         
         if (IsHeadingForCollision ()) 
         {
-            Debug.Log("Headed for collision");
-
-            Vector3 collisionAvoidDir = ObstacleRays ();
-            Vector3 collisionAvoidForce = SteerTowards (collisionAvoidDir) * settings.avoidCollisionWeight;
-            acceleration += collisionAvoidForce;
-            Debug.Log("Accelerating this way: " + collisionAvoidForce);
-
+          UpdateAccelerationWithCollisionAvoidance();
         }
-        
-        velocity += acceleration * Time.deltaTime;
-        float speed = velocity.magnitude;
-        Vector3 dir = velocity / speed;
-        speed = Mathf.Clamp (speed, settings.minSpeed, settings.maxSpeed);
-        velocity = dir * speed;
 
-        cachedTransform.position += velocity * Time.deltaTime;
-        cachedTransform.forward = dir;
-        position = cachedTransform.position;
-        forward = dir;
+        // Debug.Log("--PreUpdate--");
+        // PrintComputedValues();
         
-        Debug.Log("Velocity Final:" + velocity);
+        if (flockmatesInRange != 0)
+        {
+            //Debug.Log("Updating");
 
+            UpdateAccelerationWithAlignment();
+            UpdateAccelerationWithFlockAvoidance();
+            UpdateAccelerationWithCohesion();
+        }
+        // Debug.Log("--Post Update--");
+        // PrintComputedValues();
+        
+        UpdateVelocity();
+
+        UpdatePosition();
+        
+        //Debug.Log("Velocity Final:" + velocity);
+
+    }
+
+    void PrintComputedValues()
+    {
+        Debug.Log("Acceleration: " + acceleration);
+        Debug.Log("FlockHeading: " + avgFlockHeading);
+        Debug.Log("AvoidHeading: " + avgAvoidanceHeading);
+        Debug.Log("FlockCenter: " + centreOfFlockmates);
+        
+    // public Vector3 acceleration;
+    // public Vector3 avgFlockHeading;
+    // public Vector3 avgAvoidanceHeading;
+    // public Vector3 centreOfFlockmates;
     }
     
     
@@ -119,4 +121,80 @@ public void Initialize(BoidSettings settings)
         Vector3 v = vector.normalized * settings.maxSpeed - velocity;
         return Vector3.ClampMagnitude (v, settings.maxSteerForce);
     }
+
+    void UpdateAccelerationWithCollisionAvoidance()
+    {
+        Vector3 collisionAvoidDir = ObstacleRays ();
+        Vector3 collisionAvoidForce = SteerTowards (collisionAvoidDir) * settings.avoidCollisionWeight;
+        acceleration += collisionAvoidForce;
+    }
+    
+    void UpdateAccelerationWithAlignment()
+    {
+        //acceleration += avgFlockHeading.normalized * settings.alignWeight;
+        acceleration += SteerTowards(avgFlockHeading) * settings.alignWeight;
+        //
+        // Vector3 alignmentForce = SteerTowards (avgFlockHeading) * settings.alignWeight;
+        // acceleration += alignmentForce;
+    }
+    
+    void UpdateAccelerationWithFlockAvoidance()
+    {
+        //acceleration += avgAvoidanceHeading.normalized * settings.seperateWeight;
+        acceleration += SteerTowards(avgAvoidanceHeading) * settings.seperateWeight;
+
+        // Vector3 flockAvoidanceForce = SteerTowards (avgAvoidanceHeading) * settings.seperateWeight;
+        // acceleration += flockAvoidanceForce;
+    }
+    
+    void UpdateAccelerationWithCohesion()
+    {
+        Vector3 force = SteerTowards((centreOfFlockmates / flockmatesInRange) - position)  * settings.cohesionWeight;
+        print("Cohesion Force: " + force);
+        acceleration += force;
+        
+        // Vector3 cohesionForce = SteerTowards (avgFlockHeading) * settings.cohesionWeight;
+        // acceleration += cohesionForce;
+    }
+    
+
+    Vector3 NormalizeVector(Vector3 v)
+    {
+        return v / v.magnitude;
+    }
+
+    void UpdateVelocity()
+    {
+        acceleration = ClampVector(acceleration, 0, settings.maxSteerForce);
+        velocity += acceleration * Time.deltaTime;
+        float speed = velocity.magnitude;
+        speed = Mathf.Clamp (speed, settings.minSpeed, settings.maxSpeed);
+        Vector3 dir = NormalizeVector(velocity);
+        velocity = dir * speed;
+    }
+
+    void UpdatePosition()
+    {
+        cachedTransform.position += velocity * Time.deltaTime;
+        cachedTransform.forward = NormalizeVector(velocity);
+        position = cachedTransform.position;
+        forward = cachedTransform.forward;
+    }
+
+    Vector3 ClampVector(Vector3 vec, float min, float max)
+    {
+        float mag = vec.magnitude;
+
+        mag = Mathf.Clamp(mag, min, max);
+
+        return vec.normalized * mag;
+    }
+    
+
+
+
+
+
+
+
 }
