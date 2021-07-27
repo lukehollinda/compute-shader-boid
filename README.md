@@ -5,6 +5,8 @@ published in 1987 for the ACM SIGGRAPH conference.
 
 In my first year of university I wrote a 2D version of this in Processing. This project is both nostalgic and a way for me to dip my toes in compute shaders and High-level shader language (HLSL).
 
+Each little rocket calculates it's own position, velocity, and spherecasts to avoid obstacles. The seperation, cohesion, and alignment forces are calculated on the GPU using a computer shader, allowing us to control upwards of 3000 rockets. 
+
 
 https://user-images.githubusercontent.com/47929615/127237578-29da4f42-4ccc-426c-9715-d6d9a52c6ee8.mp4
 
