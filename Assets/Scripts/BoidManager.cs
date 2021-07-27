@@ -45,12 +45,13 @@ public class BoidManager : MonoBehaviour
             boidData[i].direction = boids[i].forward;
         }
         
+        
+        
         // Set up and dispatch compute shader
         var computeBuffer = new ComputeBuffer(numBoids, BoidData.SizeInBytes());
         computeBuffer.SetData(boidData);
         
         computeShader.SetBuffer(computeKernalID, "boids", computeBuffer);
-        computeShader.SetBool("flockmatesInRange", false);
         computeShader.SetInt("numBoids", numBoids);
         computeShader.SetFloat("viewRadius", settings.perceptionRadius);
         computeShader.SetFloat("avoidRadius", settings.avoidanceRadius);
@@ -63,20 +64,18 @@ public class BoidManager : MonoBehaviour
         //Update boid data
         for(int i = 0; i < numBoids; ++i)
         {
-            boids[i].avgFlockHeading = boidData[i].averageFlockHeading;
-            boids[i].centreOfFlockmates = boidData[i].cohesionDirection;
-            boids[i].avgAvoidanceHeading = boidData[i].collisionAvoidanceDirection;
+            boids[i].avgFlockHeading = boidData[i].flockHeading;
+            boids[i].centreOfFlockmates = boidData[i].flockCentre;
+            boids[i].avgAvoidanceHeading = boidData[i].separationHeading;
 
             boids[i].flockmatesInRange = boidData[i].flockmatesInRange;
-
-            Debug.Log("FlockHeading: " + boidData[i].averageFlockHeading);
-            Debug.Log("AvoidHeading: " + boidData[i].collisionAvoidanceDirection);
-            Debug.Log("FlockCenter: " + boidData[i].cohesionDirection);
-            Debug.Log("Flock in range?: " +  (boidData[i].flockmatesInRange != 0));
-
+            
             boids[i].UpdateBoid();
             
         }
+        
+        computeBuffer.Release();
+        
     }
 }
 
@@ -88,9 +87,9 @@ public struct BoidData
     
     //Ouput
 
-    public Vector3 averageFlockHeading;
-    public Vector3 collisionAvoidanceDirection;
-    public Vector3 cohesionDirection;
+    public Vector3 flockHeading;
+    public Vector3 flockCentre;
+    public Vector3 separationHeading;
 
     public int flockmatesInRange;
     public static int SizeInBytes()

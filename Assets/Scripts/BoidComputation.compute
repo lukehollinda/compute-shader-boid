@@ -22,25 +22,33 @@ float avoidRadius;
 void BoidComputation (uint3 id : SV_DispatchThreadID)
 {
 
-    boids[id.x].flockmatesInRangex = 0;
+    float squareViewRadius  = viewRadius * viewRadius;
+    float squareAvoidRadius = avoidRadius * avoidRadius;
+
+
+    //Potentially do not need to clear data
+    // boids[id.x].flockmatesInRangex = 0;
+    // boids[id.x].flockHeading );
+    // boids[id.x].flockCentre = 0;
+
     
-    for (int indexB = 0; indexB < numBoids; indexB ++)
+    for (int indexB = 0; indexB < numBoids; ++indexB)
     {
         if (id.x != indexB)
         {
             Boid boidB = boids[indexB];
             float3 offset = boidB.position - boids[id.x].position;
-            float sqrDst = offset.x * offset.x + offset.y * offset.y + offset.z * offset.z;
+            float sqaureDistance = offset.x * offset.x + offset.y * offset.y + offset.z * offset.z;
     
-            if (sqrDst < viewRadius * viewRadius)
+            if (sqaureDistance < squareViewRadius)
             {
                 boids[id.x].flockmatesInRangex += 1;
                 boids[id.x].flockHeading += boidB.direction;
                 boids[id.x].flockCentre += boidB.position;
 
-                if (sqrDst < avoidRadius * avoidRadius)
+                if (sqaureDistance < squareAvoidRadius)
                 {
-                    boids[id.x].separationHeading -= offset / sqrDst;
+                    boids[id.x].separationHeading -= offset / sqaureDistance;
                 }
             }
         }

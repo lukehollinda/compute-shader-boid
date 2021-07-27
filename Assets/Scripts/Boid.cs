@@ -76,24 +76,26 @@ public void Initialize(BoidSettings settings)
         
         acceleration = Vector3.zero;
         
-        if (IsHeadingForCollision ()) 
-        {
-          UpdateAccelerationWithCollisionAvoidance();
-        }
-
         // Debug.Log("--PreUpdate--");
         // PrintComputedValues();
         
         if (flockmatesInRange != 0)
         {
             //Debug.Log("Updating");
-
+            
+            
             UpdateAccelerationWithAlignment();
             UpdateAccelerationWithFlockAvoidance();
             UpdateAccelerationWithCohesion();
         }
         // Debug.Log("--Post Update--");
         // PrintComputedValues();
+        
+        if (IsHeadingForCollision ()) 
+        {
+            UpdateAccelerationWithCollisionAvoidance();
+        }
+        
         
         UpdateVelocity();
 
@@ -150,7 +152,7 @@ public void Initialize(BoidSettings settings)
     void UpdateAccelerationWithCohesion()
     {
         Vector3 force = SteerTowards((centreOfFlockmates / flockmatesInRange) - position)  * settings.cohesionWeight;
-        print("Cohesion Force: " + force);
+        //print("LocalFlockmatesInRange: " + flockmatesInRange);
         acceleration += force;
         
         // Vector3 cohesionForce = SteerTowards (avgFlockHeading) * settings.cohesionWeight;
@@ -158,38 +160,24 @@ public void Initialize(BoidSettings settings)
     }
     
 
-    Vector3 NormalizeVector(Vector3 v)
-    {
-        return v / v.magnitude;
-    }
-
     void UpdateVelocity()
     {
-        acceleration = ClampVector(acceleration, 0, settings.maxSteerForce);
         velocity += acceleration * Time.deltaTime;
         float speed = velocity.magnitude;
+        Vector3 dir = velocity / speed;
         speed = Mathf.Clamp (speed, settings.minSpeed, settings.maxSpeed);
-        Vector3 dir = NormalizeVector(velocity);
         velocity = dir * speed;
     }
 
     void UpdatePosition()
     {
         cachedTransform.position += velocity * Time.deltaTime;
-        cachedTransform.forward = NormalizeVector(velocity);
+        cachedTransform.forward = velocity.normalized;
         position = cachedTransform.position;
-        forward = cachedTransform.forward;
+        forward = velocity.normalized;
     }
 
-    Vector3 ClampVector(Vector3 vec, float min, float max)
-    {
-        float mag = vec.magnitude;
 
-        mag = Mathf.Clamp(mag, min, max);
-
-        return vec.normalized * mag;
-    }
-    
 
 
 

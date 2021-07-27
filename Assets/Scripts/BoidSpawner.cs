@@ -7,8 +7,6 @@ public class BoidSpawner : MonoBehaviour
 
     public BoidSettings settings;
     public float spawnRadius = 10;
-    public int spawnCount = 10;
-
     public Boid prefab;
     
     void Awake()
@@ -20,6 +18,7 @@ public class BoidSpawner : MonoBehaviour
             Boid boid = Instantiate(prefab);
             boid.transform.position = pos;
             boid.transform.forward = Random.insideUnitSphere;
+
         }
     }
     
