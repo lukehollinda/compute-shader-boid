@@ -4,3 +4,11 @@ An in-progress Unity project simulating the flocking behaviour of birds. The ori
 published in 1987 for the ACM SIGGRAPH conference. 
 
 In my first year of university I wrote a 2D version of this in Processing. This project is both nostalgic and a way for me to dip my toes in compute shaders and High-level shader language (HLSL).
+
+
+https://user-images.githubusercontent.com/47929615/127237578-29da4f42-4ccc-426c-9715-d6d9a52c6ee8.mp4
+
+
+
+https://user-images.githubusercontent.com/47929615/127237581-021a2dc9-5110-4462-91ae-94ab3c0f0a1e.mp4
+
