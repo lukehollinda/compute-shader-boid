@@ -31,7 +31,6 @@ public class BoidManager : MonoBehaviour
         boidData = new BoidData[settings.boidSpawnCount];
     }
 
-    // Update is called once per frame
     void Update()
     {
         
@@ -79,6 +78,8 @@ public class BoidManager : MonoBehaviour
     }
 }
 
+
+//Structure passed to compute shader
 public struct BoidData
 {
     //Input

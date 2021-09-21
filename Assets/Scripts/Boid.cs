@@ -29,7 +29,7 @@ public class Boid : MonoBehaviour
         cachedTransform = transform;
     }
 
-public void Initialize(BoidSettings settings)
+    public void Initialize(BoidSettings settings)
     {
         this.settings = settings;
 
@@ -38,9 +38,6 @@ public void Initialize(BoidSettings settings)
 
         float startSpeed = (settings.minSpeed + settings.maxSpeed) / 2;
         velocity = forward * startSpeed;
-        
-        //Debug.Log("Starting Vel:" + velocity);
-
     }
 
     bool IsHeadingForCollision () 
@@ -76,33 +73,20 @@ public void Initialize(BoidSettings settings)
         
         acceleration = Vector3.zero;
         
-        // Debug.Log("--PreUpdate--");
-        // PrintComputedValues();
-        
         if (flockmatesInRange != 0)
         {
-            //Debug.Log("Updating");
-            
-            
             UpdateAccelerationWithAlignment();
             UpdateAccelerationWithFlockAvoidance();
             UpdateAccelerationWithCohesion();
         }
-        // Debug.Log("--Post Update--");
-        // PrintComputedValues();
         
         if (IsHeadingForCollision ()) 
         {
             UpdateAccelerationWithCollisionAvoidance();
         }
         
-        
         UpdateVelocity();
-
         UpdatePosition();
-        
-        //Debug.Log("Velocity Final:" + velocity);
-
     }
 
     void PrintComputedValues()
@@ -112,10 +96,6 @@ public void Initialize(BoidSettings settings)
         Debug.Log("AvoidHeading: " + avgAvoidanceHeading);
         Debug.Log("FlockCenter: " + centreOfFlockmates);
         
-    // public Vector3 acceleration;
-    // public Vector3 avgFlockHeading;
-    // public Vector3 avgAvoidanceHeading;
-    // public Vector3 centreOfFlockmates;
     }
     
     
@@ -133,33 +113,20 @@ public void Initialize(BoidSettings settings)
     
     void UpdateAccelerationWithAlignment()
     {
-        //acceleration += avgFlockHeading.normalized * settings.alignWeight;
         acceleration += SteerTowards(avgFlockHeading) * settings.alignWeight;
-        //
-        // Vector3 alignmentForce = SteerTowards (avgFlockHeading) * settings.alignWeight;
-        // acceleration += alignmentForce;
     }
     
     void UpdateAccelerationWithFlockAvoidance()
     {
-        //acceleration += avgAvoidanceHeading.normalized * settings.seperateWeight;
         acceleration += SteerTowards(avgAvoidanceHeading) * settings.seperateWeight;
-
-        // Vector3 flockAvoidanceForce = SteerTowards (avgAvoidanceHeading) * settings.seperateWeight;
-        // acceleration += flockAvoidanceForce;
     }
     
     void UpdateAccelerationWithCohesion()
     {
         Vector3 force = SteerTowards((centreOfFlockmates / flockmatesInRange) - position)  * settings.cohesionWeight;
-        //print("LocalFlockmatesInRange: " + flockmatesInRange);
         acceleration += force;
-        
-        // Vector3 cohesionForce = SteerTowards (avgFlockHeading) * settings.cohesionWeight;
-        // acceleration += cohesionForce;
     }
     
-
     void UpdateVelocity()
     {
         velocity += acceleration * Time.deltaTime;
@@ -176,13 +143,5 @@ public void Initialize(BoidSettings settings)
         position = cachedTransform.position;
         forward = velocity.normalized;
     }
-
-
-
-
-
-
-
-
 
 }

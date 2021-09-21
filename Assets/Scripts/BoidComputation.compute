@@ -1,4 +1,3 @@
-// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel BoidComputation
 static const int threadGroupSize = 1024;
 
@@ -24,28 +23,24 @@ void BoidComputation (uint3 id : SV_DispatchThreadID)
 
     float squareViewRadius  = viewRadius * viewRadius;
     float squareAvoidRadius = avoidRadius * avoidRadius;
-
-
-    //Potentially do not need to clear data
-    // boids[id.x].flockmatesInRangex = 0;
-    // boids[id.x].flockHeading );
-    // boids[id.x].flockCentre = 0;
-
     
+    //For all boids
     for (int indexB = 0; indexB < numBoids; ++indexB)
     {
+        //Other than self
         if (id.x != indexB)
         {
             Boid boidB = boids[indexB];
             float3 offset = boidB.position - boids[id.x].position;
             float sqaureDistance = offset.x * offset.x + offset.y * offset.y + offset.z * offset.z;
-    
+
+            // If in veiw distance
             if (sqaureDistance < squareViewRadius)
             {
                 boids[id.x].flockmatesInRangex += 1;
                 boids[id.x].flockHeading += boidB.direction;
                 boids[id.x].flockCentre += boidB.position;
-
+                
                 if (sqaureDistance < squareAvoidRadius)
                 {
                     boids[id.x].separationHeading -= offset / sqaureDistance;
